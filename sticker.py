@@ -15,7 +15,7 @@ class DefaultStickerSize:
     HEIGHT = 512
 
 
-async def create_new_sticker(update: Update):
+async def create_new_sticker(update: Update, rembg_session):
     try:
         emoji_list = update.message.caption.split()
     except AttributeError:
@@ -24,7 +24,7 @@ async def create_new_sticker(update: Update):
     photo = update.message.photo[-1]
     image_file = await photo.get_file()
     image_data = bytes(await image_file.download_as_bytearray())
-    image_without_bg = remove(img_open(BytesIO(image_data)))
+    image_without_bg = remove(img_open(BytesIO(image_data)), session=rembg_session)
     cropped_pil_image = center_crop(image_without_bg, DefaultStickerSize.WIDTH, DefaultStickerSize.HEIGHT)
     with BytesIO() as img_buffer:
         cropped_pil_image.save(img_buffer, format="png")

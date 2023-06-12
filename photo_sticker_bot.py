@@ -62,10 +62,10 @@ async def help_message(update: Update, _context: ContextTypes.DEFAULT_TYPE) -> N
     await update.message.reply_text(HELP_TEXT)
 
 
-async def add_sticker(update: Update, _context: ContextTypes.DEFAULT_TYPE) -> None:
+async def add_sticker(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     user = update.message.from_user
     try:
-        new_sticker = await create_new_sticker(update)
+        new_sticker = await create_new_sticker(update, context.bot_data['rembg_session'])
     except NoEmojiSent:
         await update.message.reply_text("[!] Отправьте эмодзи вместе с картинкой, чтобы прикрепить его к стикеру.")
     except Exception:
@@ -80,7 +80,7 @@ async def add_sticker(update: Update, _context: ContextTypes.DEFAULT_TYPE) -> No
             else:
                 logger.error(f"[!] Ошибка при добавлении стикера в стикерпак.\n{traceback.format_exc()}")
         else:
-            await update.message.reply_text("[+] Стикер успешно добавлен в стикерпак.\n"
+            await update.message.reply_text("✅ Стикер успешно добавлен в стикерпак.\n"
                                             f"https://t.me/addstickers/{sticker_set_name}")
 
 
@@ -92,7 +92,7 @@ async def delete_sticker_set(update: Update, _context: ContextTypes.DEFAULT_TYPE
         success = False
 
     if success:
-        await update.message.reply_text("[+] Стикерпак успешно удален.")
+        await update.message.reply_text("✅ Стикерпак успешно удален.")
     else:
         await update.message.reply_text("[!] Что-то пошло не так, попробуйте позже.")
 
@@ -109,7 +109,7 @@ async def _create_new_sticker_set(update: Update, sticker_set_name, first_sticke
                                                       stickers=(first_sticker,), sticker_format=StickerFormat.STATIC)
     except tg_err.BadRequest:
         logger.error(f"[!] Ошибка при создании нового стикерпака.\n{traceback.format_exc()}")
-    await update.message.reply_text(f"[+] Ваш новый стикерпак создан, можете добавить его себе по ссылке:\n"
+    await update.message.reply_text(f"✅ Ваш новый стикерпак создан, можете добавить его себе по ссылке:\n"
                                     f"https://t.me/addstickers/{sticker_set_name}")
 
 
