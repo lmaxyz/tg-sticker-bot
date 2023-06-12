@@ -18,5 +18,10 @@
 ```shell
 pip install -r requirements.txt
 
-python/python3 sticker_bot.py
+python3 sticker_bot.py [--performance-mode]
 ```
+
+## Performance mode
+
+Возможен вариант запуска бота с флагом `--performance-mode`.
+В этом режиме будет использоваться одна сессия нейронной сети, что увеличивыет производительность, но также в разы увеличивает потребление памяти.
