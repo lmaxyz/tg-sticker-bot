@@ -64,12 +64,19 @@ async def help_message(update: Update, _context: ContextTypes.DEFAULT_TYPE) -> N
 
 async def add_sticker(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     user = update.message.from_user
+
+    if not context.bot_data.get("performance_mode", False):
+        rembg_session = new_session(REMBG_AI_MODEL)
+    else:
+        rembg_session = context.bot_data['rembg_session']
+
     try:
-        new_sticker = await create_new_sticker(update, context.bot_data['rembg_session'])
+        new_sticker = await create_new_sticker(update, rembg_session)
     except NoEmojiSent:
         await update.message.reply_text("[!] Отправьте эмодзи вместе с картинкой, чтобы прикрепить его к стикеру.")
     except Exception:
         logger.error(f"[!] Ошибка при создании стикера из отправленной фотографии.\n{traceback.format_exc()}")
+        await update.message.reply_text("❌ Возникла ошибка при добавлении стикера в стикерпак, попробуйте позже.")
     else:
         sticker_set_name = STICKER_SET_NAME_TMPL.format(user.username)
         try:
@@ -79,6 +86,11 @@ async def add_sticker(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
                 await _create_new_sticker_set(update, sticker_set_name, new_sticker)
             else:
                 logger.error(f"[!] Ошибка при добавлении стикера в стикерпак.\n{traceback.format_exc()}")
+                await update.message.reply_text(
+                    "❌ Возникла ошибка при добавлении стикера в стикерпак, попробуйте позже.")
+        except Exception:
+            logger.error(f"[!] Ошибка при добавлении стикера в стикерпак.\n{traceback.format_exc()}")
+            await update.message.reply_text("❌ Возникла ошибка при добавлении стикера в стикерпак, попробуйте позже.")
         else:
             await update.message.reply_text("✅ Стикер успешно добавлен в стикерпак.\n"
                                             f"https://t.me/addstickers/{sticker_set_name}")
@@ -113,13 +125,17 @@ async def _create_new_sticker_set(update: Update, sticker_set_name, first_sticke
                                     f"https://t.me/addstickers/{sticker_set_name}")
 
 
-async def _init_rembg_session(app: Application):
+async def _init_persistent_rembg_session(app: Application):
     app.bot_data['rembg_session'] = new_session(REMBG_AI_MODEL)
+    app.bot_data['performance_mode'] = True
 
 
 def start_bot():
     bot = Application.builder().token(BOT_TOKEN).build()
-    bot.post_init = _init_rembg_session
+
+    print(sys.argv)
+    if len(sys.argv) == 2 and sys.argv[1] == "--performance-mode":
+        bot.post_init = _init_persistent_rembg_session
 
     bot.add_handler(CommandHandler("help", help_message))
     bot.add_handler(CommandHandler("start", help_message))
