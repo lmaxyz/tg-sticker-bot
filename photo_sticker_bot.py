@@ -73,9 +73,9 @@ async def add_sticker(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
     try:
         new_sticker = await create_new_sticker(update, rembg_session)
     except NoEmojiSent:
-        await update.message.reply_text("[!] Отправьте эмодзи вместе с картинкой, чтобы прикрепить его к стикеру.")
+        await update.message.reply_text("❌ Отправьте эмодзи вместе с картинкой, чтобы прикрепить его к стикеру.")
     except Exception:
-        logger.error(f"[!] Ошибка при создании стикера из отправленной фотографии.\n{traceback.format_exc()}")
+        logger.error(f"❌ Ошибка при создании стикера из отправленной фотографии.\n{traceback.format_exc()}")
         await update.message.reply_text("❌ Возникла ошибка при добавлении стикера в стикерпак, попробуйте позже.")
     else:
         sticker_set_name = STICKER_SET_NAME_TMPL.format(user.username)
@@ -85,7 +85,7 @@ async def add_sticker(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
             if "Stickerset_invalid" in str(err):
                 await _create_new_sticker_set(update, sticker_set_name, new_sticker)
             else:
-                logger.error(f"[!] Ошибка при добавлении стикера в стикерпак.\n{traceback.format_exc()}")
+                logger.error(f"❌ Ошибка при добавлении стикера в стикерпак.\n{traceback.format_exc()}")
                 await update.message.reply_text(
                     "❌ Возникла ошибка при добавлении стикера в стикерпак, попробуйте позже.")
         except Exception:
@@ -106,7 +106,7 @@ async def delete_sticker_set(update: Update, _context: ContextTypes.DEFAULT_TYPE
     if success:
         await update.message.reply_text("✅ Стикерпак успешно удален.")
     else:
-        await update.message.reply_text("[!] Что-то пошло не так, попробуйте позже.")
+        await update.message.reply_text("❌ Что-то пошло не так, попробуйте позже.")
 
 
 async def get_user_sticker_set_link(update: Update, _context: ContextTypes.DEFAULT_TYPE):
@@ -120,7 +120,7 @@ async def _create_new_sticker_set(update: Update, sticker_set_name, first_sticke
         await update.get_bot().create_new_sticker_set(user.id, sticker_set_name, DEFAULT_STICKER_SET_TITLE,
                                                       stickers=(first_sticker,), sticker_format=StickerFormat.STATIC)
     except tg_err.BadRequest:
-        logger.error(f"[!] Ошибка при создании нового стикерпака.\n{traceback.format_exc()}")
+        logger.error(f"❌ Ошибка при создании нового стикерпака.\n{traceback.format_exc()}")
     else:
         await update.message.reply_text(f"✅ Ваш новый стикерпак создан, можете добавить его себе по ссылке:\n"
                                         f"https://t.me/addstickers/{sticker_set_name}")
