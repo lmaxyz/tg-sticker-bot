@@ -121,8 +121,9 @@ async def _create_new_sticker_set(update: Update, sticker_set_name, first_sticke
                                                       stickers=(first_sticker,), sticker_format=StickerFormat.STATIC)
     except tg_err.BadRequest:
         logger.error(f"[!] Ошибка при создании нового стикерпака.\n{traceback.format_exc()}")
-    await update.message.reply_text(f"✅ Ваш новый стикерпак создан, можете добавить его себе по ссылке:\n"
-                                    f"https://t.me/addstickers/{sticker_set_name}")
+    else:
+        await update.message.reply_text(f"✅ Ваш новый стикерпак создан, можете добавить его себе по ссылке:\n"
+                                        f"https://t.me/addstickers/{sticker_set_name}")
 
 
 async def _init_persistent_rembg_session(app: Application):
