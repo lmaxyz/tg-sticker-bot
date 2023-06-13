@@ -100,7 +100,7 @@ async def delete_sticker_set(update: Update, _context: ContextTypes.DEFAULT_TYPE
     try:
         success = await update.get_bot().delete_sticker_set(STICKER_SET_NAME_TMPL.format(update.message.from_user.username))
     except Exception:
-        logger.error(f"[!] Ошибка при удалении стикерпака.\n{traceback.format_exc()}")
+        logger.error(f"❌ Ошибка при удалении стикерпака.\n{traceback.format_exc()}")
         success = False
 
     if success:
