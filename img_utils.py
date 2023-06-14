@@ -1,6 +1,15 @@
 from PIL.Image import Image
 
 
+def down_scale(img: Image, target_width: int, target_height: int) -> Image:
+    width, height = img.size
+
+    if (width / target_width) >= 2.0 or (height / target_height) >= 2.0:
+        return img.reduce(2)
+
+    return img
+
+
 def center_crop(img: Image, new_width: int = None, new_height: int = None) -> Image:
     width, height = img.size
 
