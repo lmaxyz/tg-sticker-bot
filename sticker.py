@@ -1,11 +1,11 @@
 from io import BytesIO
 
-from rembg import remove, new_session
+from rembg import remove
 from telegram import Update, InputSticker
 from PIL.Image import open as img_open
 
 from error import NoEmojiSent
-from img_utils import center_crop
+from img_utils import center_crop, down_scale
 
 
 class DefaultStickerSize:
@@ -15,7 +15,7 @@ class DefaultStickerSize:
 
 async def create_new_sticker(update: Update, rembg_session):
     try:
-        emoji_list = update.message.caption.split()
+        emoji_list = list(update.message.caption)
     except AttributeError:
         raise NoEmojiSent()
 
@@ -24,12 +24,13 @@ async def create_new_sticker(update: Update, rembg_session):
     image_data = bytes(await image_file.download_as_bytearray())
 
     with BytesIO(image_data) as bytes_io_image:
-        image_without_bg = remove(img_open(bytes_io_image), session=rembg_session)
+        reduced_image = down_scale(img_open(bytes_io_image), DefaultStickerSize.WIDTH, DefaultStickerSize.HEIGHT)
+        cropped_image = center_crop(reduced_image, DefaultStickerSize.WIDTH, DefaultStickerSize.HEIGHT)
 
-    cropped_pil_image = center_crop(image_without_bg, DefaultStickerSize.WIDTH, DefaultStickerSize.HEIGHT)
+    image_without_bg = remove(cropped_image, session=rembg_session)
 
     with BytesIO() as img_buffer:
-        cropped_pil_image.save(img_buffer, format="png")
+        image_without_bg.save(img_buffer, format="png")
         img_bytes = img_buffer.getvalue()
 
     return InputSticker(img_bytes, emoji_list)
