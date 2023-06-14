@@ -16,7 +16,7 @@ class DefaultStickerSize:
 async def create_new_sticker(update: Update, rembg_session):
     try:
         emoji_list = list(update.message.caption)
-    except AttributeError:
+    except TypeError:
         raise NoEmojiSent()
 
     photo = update.message.photo[-1]
